@@ -40,43 +40,6 @@
 - Enhance your investment strategies with AI-driven forecasting tools.
 
 ---
-## Technologies
-
-**TradeWise** is built with a modern tech stack that ensures a responsive, scalable, and user-friendly experience. Here's an overview of the technologies powering the platform:
-
-### Front-End
-- **React.js**: Enables a dynamic and interactive user interface with seamless navigation.
-- **ApexCharts**: Provides powerful and customizable data visualization for stock trends, including candlestick, Heikin Ashi, and area charts.
-- **Bootstrap**: Ensures a responsive and mobile-friendly design for users across devices.
-
-### Back-End
-- **Django**: A robust and scalable web framework that handles business logic, user authentication, and database management.
-- **Django REST Framework (DRF)**: Facilitates API creation for communication between the client and server.
-
-### Database
-- **SQLite**: A lightweight, embedded database for storing user data, transactions, and portfolio information.
-
-### APIs
-- **Twelve Data API**: Supplies real-time stock data and financial insights.
-- **NewsAPI**: Automates the fetching of financial news and market trends.
-- **Financial Modeling Prep API**: Provides company profiles and financial summaries.
-
-### Artificial Intelligence
-- **Llama3 API**: Powers the chatbot for personalized investment advice and user assistance.
-- **LSTM Models** *(In Progress)*: Enhances stock prediction capabilities through machine learning.
-
-### Deployment
-- **Docker**: Containerization ensures consistency and easy deployment across environments.
-- **Docker Compose**: Manages multi-container applications, combining the front-end and back-end seamlessly.
-
-### Development Tools
-- **Visual Studio Code**: For efficient development and debugging.
-- **Postman**: Used to test and validate API integrations.
-
-These technologies work together to deliver a high-performing, feature-rich platform tailored for modern investors.
-
-
----
 ## How to Run
 
 ### Installation and Environment Setup
