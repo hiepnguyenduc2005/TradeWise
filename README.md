@@ -104,6 +104,8 @@
     docker build -t tradewise-client .
     docker run -p 80:80 -e SERVER_URL=http://host.docker.internal:8000/ --name test-client tradewise-client
     ```
+The client will be available at http://localhost and the server API at http://localhost:8000.
+
 
 ### Development Mode (Without Docker)
 1. **Set up a Python virtual environment:**
@@ -133,6 +135,7 @@
     ```bash
     npm run dev
     ```
+The client will be available at http://localhost:5173 and the server API at http://localhost:8000.
 
 
 ---
