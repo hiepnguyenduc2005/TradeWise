@@ -10,64 +10,71 @@
 
 
 ---
-## Distinctiveness and Complexity
+## Features
 
-TradeWise is a comprehensive stock portfolio management platform that provides users with real-time stock data, financial insights, and advanced investment tools. It is a highly distinct and complex project that builds on CS50W concepts while introducing innovative features. Here's why TradeWise stands out and meets the complexity requirements:
+**TradeWise** is a comprehensive platform designed to help users manage their investments effectively with cutting-edge tools and insights. Explore the key features that make TradeWise your go-to investment management solution:
 
-### Distinctiveness
+### Real-Time Stock Quotes
+- Access instant stock prices from **Twelve Data API** to make informed decisions.
+- Stay updated on market trends with real-time insights.
 
-1. **Comprehensive Financial Tool**:
-   - TradeWise integrates functionalities like real-time stock quotes, transaction tracking, and historical data visualization, making it a one-stop solution for investment management.
-   - Unlike previous projects in CS50W, which focused on social or e-commerce workflows, TradeWise is uniquely designed for the financial domain.
+### Transaction Tracking and Cash Management
+- Track your buying and selling transactions effortlessly.
+- Manage your account balance and cash flow to stay on top of your finances.
 
-2. **Dynamic Visualization and Insights**:
-   - Users can visualize stock trends using multiple chart types (e.g., candlestick, Heikin Ashi) powered by ApexCharts. This level of interactivity and insight goes far beyond static data representation.
+### Historical Data Visualization
+- Visualize stock trends with interactive charts, including:
+  - **Candlestick**, **Heikin Ashi**, **Line**, and **Area** chart types.
+- Simplify complex stock data into clear, actionable insights.
 
-3. **Automated News Integration**:
-   - News scraping from NewsAPI ensures that users stay informed about the latest financial developments. This real-time integration is distinct from static content seen in other projects.
+### Automated News Scraping
+- Stay informed with the latest financial news and market updates.
+- Powered by **NewsAPI**, get relevant information about companies and trends directly on the platform.
 
-4. **AI and Machine Learning Capabilities**:
-   - TradeWise leverages AI for **Personalized Investment Consulting** via its chatbot, which provides tailored advice to users based on their account data.
-   - The project includes plans for deep learning-based stock predictions using LSTM models, demonstrating its ambition to incorporate cutting-edge technologies.
+### Personalized Investment Consulting
+- Consult our AI-powered chatbot for tailored investment advice.
+- Get insights into your portfolio and strategies to enhance your market understanding.
 
-5. **User-Centric Features**:
-   - Users can manage their accounts effectively with features like transaction tracking, cash management, and profile updates, emphasizing convenience and usability.
+### Deep Learning-Based Stock Predictions *(In Progress)*
+- Predict future stock movements with advanced **LSTM models** (Long Short-Term Memory).
+- Enhance your investment strategies with AI-driven forecasting tools.
 
-6. **Full-Stack Development**:
-   - The integration of a React-powered front-end and Django back-end showcases the potential of full-stack development. It ensures seamless communication between the client and server for dynamic data updates.
+---
+## Technologies
 
-### Complexity
+**TradeWise** is built with a modern tech stack that ensures a responsive, scalable, and user-friendly experience. Here's an overview of the technologies powering the platform:
 
-1. **Advanced API Integration**:
-   - TradeWise integrates multiple APIs, including Twelve Data, Financial Modeling Prep, and NewsAPI, for real-time stock data, financial summaries, and news. Handling rate limits, errors, and data formatting adds significant complexity.
+### Front-End
+- **React.js**: Enables a dynamic and interactive user interface with seamless navigation.
+- **ApexCharts**: Provides powerful and customizable data visualization for stock trends, including candlestick, Heikin Ashi, and area charts.
+- **Bootstrap**: Ensures a responsive and mobile-friendly design for users across devices.
 
-2. **Stock Visualization**:
-   - Implementing multiple stock chart types (e.g., candlestick, line, Heikin Ashi) required understanding complex data structures and visualization libraries like ApexCharts.
+### Back-End
+- **Django**: A robust and scalable web framework that handles business logic, user authentication, and database management.
+- **Django REST Framework (DRF)**: Facilitates API creation for communication between the client and server.
 
-3. **AI-Powered Chatbot**:
-   - The chatbot, powered by the Llama3 API, offers personalized investment advice based on user account data. This feature enhances the platform’s interactivity and complexity.
+### Database
+- **SQLite**: A lightweight, embedded database for storing user data, transactions, and portfolio information.
 
-4. **Transactional Workflows**:
-   - The project includes buy/sell validation to ensure accurate transactions based on live stock data and user balances. This feature integrates real-time checks and secure workflows.
+### APIs
+- **Twelve Data API**: Supplies real-time stock data and financial insights.
+- **NewsAPI**: Automates the fetching of financial news and market trends.
+- **Financial Modeling Prep API**: Provides company profiles and financial summaries.
 
-5. **Responsive and Interactive Design**:
-   - The use of Bootstrap for responsiveness ensures that TradeWise is accessible across devices, meeting the mobile-responsiveness requirement.
-   - Features like "load more" buttons, dynamic table updates, and form validation improve usability and enhance the user experience.
+### Artificial Intelligence
+- **Llama3 API**: Powers the chatbot for personalized investment advice and user assistance.
+- **LSTM Models** *(In Progress)*: Enhances stock prediction capabilities through machine learning.
 
-6. **Scalable Deployment**:
-   - TradeWise is containerized using Docker and Docker Compose, making it easy to deploy and scale. This ensures the project can handle real-world use cases effectively.
+### Deployment
+- **Docker**: Containerization ensures consistency and easy deployment across environments.
+- **Docker Compose**: Manages multi-container applications, combining the front-end and back-end seamlessly.
 
-### Comparison to CS50W Projects
+### Development Tools
+- **Visual Studio Code**: For efficient development and debugging.
+- **Postman**: Used to test and validate API integrations.
 
-TradeWise avoids overlap with previous CS50W projects:
-- **Not an E-Commerce Platform (Project 2)**:
-   - TradeWise focuses on stock portfolio management, with features like transaction validation, AI consultation, and stock visualization, unrelated to "add to cart" or "checkout" workflows.
-- **Not a Social Network (Project 4)**:
-   - The application lacks social features like posts or likes. Instead, it emphasizes data-driven financial tools and personalized insights.
+These technologies work together to deliver a high-performing, feature-rich platform tailored for modern investors.
 
-### Conclusion
-
-TradeWise demonstrates both distinctiveness and complexity by addressing real-world financial challenges with advanced technologies. Its integration of APIs, dynamic visualization, and AI consulting makes it a standout project that showcases the true potential of full-stack development. By combining foundational CS50W concepts with innovative features, TradeWise exceeds the course’s expectations for final projects.
 
 ---
 ## How to Run
@@ -163,6 +170,43 @@ TradeWise demonstrates both distinctiveness and complexity by addressing real-wo
     ```bash
     npm run dev
     ```
+
+
+---
+## Technologies
+
+**TradeWise** is built with a modern tech stack that ensures a responsive, scalable, and user-friendly experience. Here's an overview of the technologies powering the platform:
+
+### Front-End
+- **React.js**: Enables a dynamic and interactive user interface with seamless navigation.
+- **ApexCharts**: Provides powerful and customizable data visualization for stock trends, including candlestick, Heikin Ashi, and area charts.
+- **Bootstrap**: Ensures a responsive and mobile-friendly design for users across devices.
+
+### Back-End
+- **Django**: A robust and scalable web framework that handles business logic, user authentication, and database management.
+- **Django REST Framework (DRF)**: Facilitates API creation for communication between the client and server (Model - View - Controller, MVC)
+
+### Database
+- **SQLite**: A lightweight, embedded database for storing user data, transactions, and portfolio information.
+
+### APIs
+- **Twelve Data API**: Supplies real-time stock data and financial insights.
+- **NewsAPI**: Automates the fetching of financial news and market trends.
+- **Financial Modeling Prep API**: Provides company profiles and financial summaries.
+
+### Artificial Intelligence
+- **Llama3 API**: Powers the chatbot for personalized investment advice and user assistance.
+- **LSTM Models** *(In Progress)*: Enhances stock prediction capabilities through machine learning.
+
+### Deployment
+- **Docker**: Containerization ensures consistency and easy deployment across environments.
+- **Docker Compose**: Manages multi-container applications, combining the front-end and back-end seamlessly.
+
+### Development Tools
+- **Visual Studio Code**: For efficient development and debugging.
+- **Postman**: Used to test and validate API integrations.
+
+These technologies work together to deliver a high-performing, feature-rich platform tailored for modern investors.
 
 
 ---
