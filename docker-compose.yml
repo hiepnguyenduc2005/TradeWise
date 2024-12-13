@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  server:
+    image: hiepnguyenduc2005/tradewise-server
+    # build:
+    #   context: ./server  
+    ports:
+      - "8000:8000"       
+    volumes:
+      - ./server:/app  
+    environment:
+      - .env
+      - DEBUG=True
+
+  client:
+    image: hiepnguyenduc2005/tradewise-client
+    # build:
+    #   context: ./client  
+    ports:
+      - "80:80"           
+    environment:
+      - SERVER_URL=http://server:8000  
+    depends_on:
+      - server           

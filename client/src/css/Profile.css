@@ -1,0 +1,204 @@
+.profile {
+    margin: 10px auto;
+    padding: 20px;
+    border-radius: 10px;
+    color: #00005f; 
+    background-color: #7DCEA0;
+    text-align: left;
+}
+
+.profile-title {
+    font-size: 28px;
+}
+
+.profile-subtitle {
+    font-size: 14px; 
+    margin: 0;
+}
+
+.profile-quote {
+    margin-bottom: 10px;
+}
+
+.profile-price {
+    font-size: 20px;
+}
+
+.profile-logo {
+    text-align: right;
+}
+
+.profile-image {
+    width: 100px;
+    margin-right: 10px;
+}
+
+.profile-button {
+    width: 50%;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #00005f;
+    color: #ffffff;
+    margin: 10px;
+}
+
+.profile-button:hover {
+    border: none;
+}
+
+.profile-row {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: start;
+}
+
+.profile-section {
+    font-size: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 10px auto;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-align: left;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.profile-middle {
+    text-align: center;
+}
+
+.profile-table {
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-bottom: 20px;
+}
+
+.profile-table td {
+    border: 1px solid #00005f; 
+    padding: 8px; 
+    text-align: center; 
+}
+
+.profile-table th {
+    border-right: 1px solid #dee2e6; 
+    background-color: #00005f; 
+    color: white; 
+    padding: 8px; 
+    text-align: center; 
+}
+
+.profile-table th:first-child {
+    border-left: 1px solid #00005f;
+}
+.profile-table th:last-child {
+    border-right: 1px solid #00005f; 
+}
+
+.profile-table tbody {
+    background-color: #FFBF69;
+}
+.profile-table tbody tr
+{
+    color: #00005f;
+}
+
+.profile-table tbody tr:nth-child(odd) {
+    color: #00005f;
+}
+
+.profile-table tbody tr:nth-child(even) {
+    background-color: #e0ffff56; 
+    color: #00005f;
+}
+
+.profile-link, .profile-link:hover {
+    text-decoration: none;
+    color: #00005f;
+}
+
+.profile-table th:first-child, .profile-table td:first-child {
+    width: 30%; 
+    font-weight: bold;
+}
+
+.profile-table th:last-child, .profile-table td:last-child {
+    width: 70%; 
+}
+
+.profile-change {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #00005f;
+    color: white;
+    font-weight: 500;
+}
+
+.negative {
+    color: #FE4848;
+}
+
+.positive {
+    color: #7DCEA0;
+}
+
+.chart-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #FFBF69; 
+  border-radius: 10px;
+}
+
+.chart-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.chart-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffffff; 
+  color: #00005f; 
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.chart-button.active {
+  background-color: #00005f;
+  color: #ffffff;
+}
+
+.chart-button:hover {
+  background-color: #7DCEA0; 
+  color: #00005f;
+}
+
+.chart-dropdown {
+  margin-left: 10px;
+}
+
+.chart-select {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: none;
+  font-size: 14px;
+  background-color: #00005f;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.chart-select:hover {
+  background-color: #00005f;
+  color: #ffffff;
+}
