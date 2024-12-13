@@ -150,7 +150,7 @@ The client will be available at http://localhost:5173 and the server API at http
 
 ### Back-End
 - **Django**: A robust and scalable web framework that handles business logic, user authentication, and database management.
-- **MVC Model**: Facilitates API creation for communication between the client and server (Model - View - Controller)
+- **MVC Model**: Facilitates API creation for communication between the client and server (Model - View - Controller).
 
 ### Database
 - **SQLite**: A lightweight, embedded database for storing user data, transactions, and portfolio information.
