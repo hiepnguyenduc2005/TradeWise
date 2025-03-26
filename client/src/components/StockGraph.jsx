@@ -6,16 +6,16 @@ import HeikinAshi from './Graphs/HeikinAshi';
 import Area from './Graphs/Area';
 import '../css/Profile.css';
 
-export default function StockGraph ({ symbol, ipoDate }) {
+export default function StockGraph ({ symbol, ipoDate, dataUser }) {
   const [data, setData] = useState([]);
-  const [chartType, setChartType] = useState('line'); 
+  const [chartType, setChartType] = useState('candlestick'); 
   const [option, setOption] = useState('1d'); 
 
   useEffect(() => {
     const fetchStockData = async () => {
         ProfilesAPI.graph(symbol, option, ipoDate)
             .then(result => {
-                setData(formatData(result.values.reverse()));
+                setData(formatData(result.reverse()));
             })
             .catch(error => console.error("Error fetching stock data: ", error));
     };
@@ -42,12 +42,6 @@ export default function StockGraph ({ symbol, ipoDate }) {
       <div className="chart-controls">
         <div className="chart-buttons">
           <button
-            className={chartType === 'line' ? 'chart-button active' : 'chart-button'}
-            onClick={() => setChartType('line')}
-          >
-            Line
-          </button>
-          <button
             className={chartType === 'candlestick' ? 'chart-button active' : 'chart-button'}
             onClick={() => setChartType('candlestick')}
           >
@@ -58,6 +52,12 @@ export default function StockGraph ({ symbol, ipoDate }) {
             onClick={() => setChartType('heikin-ashi')}
           >
             Heikin-Ashi
+          </button>
+          <button
+            className={chartType === 'line' ? 'chart-button active' : 'chart-button'}
+            onClick={() => setChartType('line')}
+          >
+            Line
           </button>
           <button
             className={chartType === 'area' ? 'chart-button active' : 'chart-button'}
@@ -78,8 +78,12 @@ export default function StockGraph ({ symbol, ipoDate }) {
             <option value="6m">6 Months</option>
             <option value="ytd">Year-to-Date</option>
             <option value="1y">1 Year</option>
-            <option value="5y">5 Years</option>
-            <option value="max">Max</option>
+            {(dataUser && dataUser.group) == 'Premium User' 
+            ? <option value="5y">5 Years</option>
+            : <option value="5y" disabled>5 Years (Premium Only)</option>}
+            {(dataUser && dataUser.group) == 'Premium User'
+            ? <option value="max">Max</option>
+            : <option value="max" disabled>Max (Premium Only)</option>}
           </select>
         </div>
       </div>

@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../css/Chatbot.css';
 import ChatbotAPI from '../services/ChatbotAPI';
 
-export default function Chatbot({ tempTransactions, cash }) {
+export default function Chatbot({ tempTransactions, cash, dataUser }) {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const userData = { transactions: tempTransactions, cash };
+    const userData = { transactions: tempTransactions, cash: cash, user: dataUser };
     const messagesEndRef = useRef(null);
 
     const fetchInitialState = () => {

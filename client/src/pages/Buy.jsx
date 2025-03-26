@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/main.css';
 import TransactionsAPI from '../services/TransactionsAPI';
+import UsersAPI from '../services/UsersAPI';
 
-export default function Buy() {
+export default function Buy({setCash, setTempTransactions}) {
     const [symbol, setSymbol] = useState('');
     const [shares, setShares] = useState('');
 
@@ -23,13 +24,26 @@ export default function Buy() {
         }
 
         TransactionsAPI.buy(symbol, shares)
-            .then(() => {
-                alert('Stock bought successfully');
-                navigate('/');
-            })
-            .catch((error) => {
-                alert('Error fetching stock data: ' + error.message);
-            });
+          .then(() => {
+              alert('Stock bought successfully');
+              navigate('/');
+          })
+          .then(() => {
+            UsersAPI.temp()
+              .then(data => {
+                if (Array.isArray(data)) {
+                  setTempTransactions(data.reverse())
+                }
+              })
+              .catch(error => console.error('Error fetching transactions:', error.message));
+            UsersAPI.showCash()
+              .then(data => setCash(data.balance))
+              .catch(error => console.error('Error fetching cash:', error.message
+            ));
+          })
+          .catch((error) => {
+              alert('Error fetching stock data: ' + error.message);
+          });
     };
 
     return (

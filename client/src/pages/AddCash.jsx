@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../css/main.css';
 import UsersAPI from '../services/UsersAPI';
 
-export default function AddCash() {
+export default function AddCash({setCash}) {
     const [amount, setAmount] = useState('');
 
     const navigate = useNavigate();
@@ -23,13 +23,18 @@ export default function AddCash() {
         }
         
         UsersAPI.addCash(amount)
-            .then(() => {
-                alert('Cash added successfully');
-                navigate('/');
-            })
-            .catch((error) => {
-                alert('Error adding cash: ' + error.message);
-            });
+          .then(() => {
+              alert('Cash added successfully');
+              navigate('/');
+          })
+          .then(() => {
+            UsersAPI.showCash()
+              .then(data => setCash(data.balance))
+              .catch(error => console.error('Error fetching cash:', error.message));
+          })
+          .catch((error) => {
+              alert('Error adding cash: ' + error.message);
+          });
     }
 
     return (

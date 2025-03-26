@@ -5,7 +5,7 @@ import '../css/main.css';
 import { Link } from 'react-router-dom';
 import UsersAPI from '../services/UsersAPI';
 
-export default function Index({ isAuthenticated, cash }) {
+export default function Index({ isAuthenticated, dataUser, cash }) {
     const [guideNeeded, setGuideNeeded] = useState(false);
     const [visibleCount, setVisibleCount] = useState(10);
     const [transactions, setTransactions] = useState([]);
@@ -25,7 +25,7 @@ export default function Index({ isAuthenticated, cash }) {
                 }
             })
             .catch(error => console.error('Error fetching transactions:', error.message));
-    }, []);
+    }, [isAuthenticated]);
 
     return (
         <div className="content">
@@ -40,8 +40,21 @@ export default function Index({ isAuthenticated, cash }) {
                     </Col>
                 )}
             </Row>
+            
+            {(isAuthenticated && dataUser.group === 'Pending Expert') && (
+                <div className="expert">
+                    <h4>Pending Expert</h4>
+                    <p>Please contact the administrator to approve your expert status.</p>
+                </div>
+            )}
 
-            {isAuthenticated && (
+            {(isAuthenticated && dataUser.group === 'Expert') && (
+                <div className="expert">
+                    <h4>Expert</h4>
+                    <p>Welcome back, Expert! Please check your inbox at <Link to='/'>Chats</Link>.</p>
+                </div>
+            )}
+            {(isAuthenticated && ['User', 'Premium User'].includes(dataUser.group)) && (
                 <div className="summary">
                     <h4>Summary</h4>
                     <table className="history-table">

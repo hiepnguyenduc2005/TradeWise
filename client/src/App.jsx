@@ -16,6 +16,7 @@ import Index from './pages/Index';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ChangePassword from './pages/ChangePassword';
+import UpgradePremium from './pages/UpgradePremium';
 import AddCash from './pages/AddCash';
 import Quote from './pages/Quote';
 import Profile from './pages/Profile';
@@ -29,7 +30,7 @@ import UsersAPI from './services/UsersAPI';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [dataUser, setDataUser] = useState({'username': '', 'fullname': ''});
+  const [dataUser, setDataUser] = useState({'username': '', 'fullname': '', 'group': ''});
   const [loading, setLoading] = useState(true); 
   const [tempTransactions, setTempTransactions] = useState([]);
   const [cash, setCash] = useState(0);
@@ -40,7 +41,7 @@ function App() {
             setIsAuthenticated(data.isAuthenticated);
             setLoading(false); 
             if (data.isAuthenticated) {
-                setDataUser({username: data.username, fullname: data.fullname});
+                setDataUser({username: data.username, fullname: data.fullname, group: data.group});
             }
         })
         .catch(() => {
@@ -54,54 +55,59 @@ function App() {
             return;
         }
         UsersAPI.temp()
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setTempTransactions(data.reverse())
-                }
-            })
-            .catch(error => console.error('Error fetching transactions:', error.message));
+          .then(data => {
+              if (Array.isArray(data)) {
+                  setTempTransactions(data.reverse())
+              }
+          })
+          .catch(error => console.error('Error fetching transactions:', error.message));
         UsersAPI.showCash()
-            .then(data => setCash(data.balance))
-            .catch(error => console.error('Error fetching cash:', error.message));
-    }, [isAuthenticated]);
-
-  if (loading || (isAuthenticated && !dataUser.username)) {
-      return "Loading...";  
-  }
+          .then(data => setCash(data.balance))
+          .catch(error => console.error('Error fetching cash:', error.message));
+    }, [isAuthenticated, dataUser.group]);
 
   let element = useRoutes([
       {
           path: '/',
-          element: <Index isAuthenticated={isAuthenticated} cash={cash} />,
+          element: <Index isAuthenticated={isAuthenticated} dataUser={dataUser} cash={cash} />,
       },
       {   
           path: '/login',
           element: (
-            <AntiProtectedRoute isAuthenticated={isAuthenticated}>
-              <Login setIsAuthenticated={setIsAuthenticated} setDataUser={setDataUser}/>
-            </AntiProtectedRoute>
+              <AntiProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Login setIsAuthenticated={setIsAuthenticated} setDataUser={setDataUser}/>
+              </AntiProtectedRoute>
           ),
       },
       {
           path: '/signup',
           element: (
-            <AntiProtectedRoute isAuthenticated={isAuthenticated}>
-            <Signup setIsAuthenticated={setIsAuthenticated} setDataUser={setDataUser}/>
-          </AntiProtectedRoute>)
+              <AntiProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Signup setIsAuthenticated={setIsAuthenticated} setDataUser={setDataUser}/>
+              </AntiProtectedRoute>
+          ),
       },
       {
           path: '/changepw',
           element: (
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <ChangePassword />
+                <ChangePassword />
               </ProtectedRoute>
           ),
+      },
+      {
+            path: '/upgrade',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <UpgradePremium setDataUser={setDataUser}/>
+              </ProtectedRoute>
+            ),
       },
       {
           path: '/addcash',
           element: (
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <AddCash />
+                  <AddCash setCash={setCash}/>
               </ProtectedRoute>
           ),
       },
@@ -111,13 +117,13 @@ function App() {
       },
       {
           path: 'quote/:symbol',
-          element: <Profile />,
+          element: <Profile dataUser={dataUser}/>,
       },
       {
           path: '/buy',
           element: (
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Buy />
+                  <Buy setCash={setCash} setTempTransactions={setTempTransactions}/>
               </ProtectedRoute>
           ),
       },
@@ -125,7 +131,7 @@ function App() {
           path: '/sell',
           element: (
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Sell />
+                  <Sell setCash={setCash} setTempTransactions={setTempTransactions}/>
               </ProtectedRoute>
           ),
       },
@@ -142,6 +148,10 @@ function App() {
           element: <NotFound />,
       }
   ]);
+
+  if (loading || (isAuthenticated && !dataUser.username)) {
+    return "Loading...";  
+  }
 
   return (
       <div>
@@ -160,7 +170,7 @@ function App() {
             <div className="component">
                 {isAuthenticated ? (
                     <ProtectedRoute isAuthenticated={isAuthenticated}>
-                        <Chatbot tempTransactions={tempTransactions} cash={cash} />
+                        <Chatbot tempTransactions={tempTransactions} cash={cash} dataUser={dataUser} />
                     </ProtectedRoute>)
                     : <Demo />}
             </div>

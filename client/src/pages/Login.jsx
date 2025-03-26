@@ -16,10 +16,15 @@ export default function Login({ setIsAuthenticated, setDataUser }) {
             return;
         }
         AuthAPI.loginUser(username, password)
-            .then((data) => {
+            .then(() => {
                 setIsAuthenticated(true);
-                setDataUser({ username: data.username, fullname: data.fullname });
-                navigate('/');
+            })
+            .then(() => {
+                AuthAPI.authenticate()
+                    .then(data => {
+                        setDataUser({ username: data.username, fullname: data.fullname, group: data.group });
+                        navigate('/');
+                    })
             })
             .catch((error) => {
                 alert('Error authenticating: ' + error.message);

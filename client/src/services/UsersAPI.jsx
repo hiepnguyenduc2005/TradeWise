@@ -20,10 +20,15 @@ const showCash = () => {
     return request('GET', '/api/showcash');
 }
 
+const upgradePremium = () => {
+    return request('POST', '/api/upgrade');
+}
+
 export default {
     addCash,
     history,
     profile,
     temp,
-    showCash
+    showCash,
+    upgradePremium
 }

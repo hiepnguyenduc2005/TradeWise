@@ -14,28 +14,34 @@ export default function Signup({ setIsAuthenticated, setDataUser }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [balance, setBalance] = useState('');
+    const [isExpert, setIsExpert] = useState(false);
 
     const navigate = useNavigate();
 
     const handleSignup = async (e) => {
         e.preventDefault();
-        if (username === '' || password === '' || cfPassword === '' || email === '' || firstName === '' || lastName === '' || balance === '') {
+        if (username === '' || password === '' || cfPassword === '' || email === '' || firstName === '' || lastName === '' || (balance === '' && !isExpert)) {
             alert('Please fill in all fields');
         }
         if (password !== cfPassword) {
             alert('Passwords do not match');
             return;
         }
-        const parsedBalance = parseFloat(balance);
+        const parsedBalance = !isExpert ? parseFloat(balance) : 0;
         if (isNaN(parsedBalance) || parsedBalance < 0) {
             alert('Balance must be a non-negative number');
             return;
         }
-        AuthAPI.signupUser(username, password, email, firstName, lastName, parsedBalance)
-            .then((data) => {
+        AuthAPI.signupUser(username, password, email, firstName, lastName, parsedBalance, isExpert)
+            .then(() => {
                 setIsAuthenticated(true);
-                setDataUser({ username: data.username, fullname: data.fullname });
-                navigate('/');
+            })
+            .then(() => {
+                AuthAPI.authenticate()
+                    .then(data => {
+                        setDataUser({ username: data.username, fullname: data.fullname, group: data.group });
+                        navigate('/');
+                    })
             })
             .catch((error) => {
                 alert('Error authenticating: ' + error.message);
@@ -107,13 +113,24 @@ export default function Signup({ setIsAuthenticated, setDataUser }) {
                     />
                 </div>
                 <div className="form-item">
-                    <label>Balance</label>
+                    <label>Do you sign up as an expert?</label>
                     <input
-                        type="number"
-                        value={balance}
-                        onChange={(e) => setBalance(e.target.value)}
+                        type="checkbox"
+                        checked={isExpert}
+                        onChange={(e) => setIsExpert(e.target.checked)}
+                        style={{backgroundColor: 'white'}}
                     />
                 </div>
+                {!isExpert && 
+                    <div className="form-item">
+                        <label>Balance</label>
+                        <input
+                            type="number"
+                            value={balance}
+                            onChange={(e) => setBalance(e.target.value)}
+                        />
+                    </div>
+                }
                 <p>Already have an account? <a href="/login">Sign in</a></p>
                 <button className="form-button" type="submit">Sign Up</button>
             </form>

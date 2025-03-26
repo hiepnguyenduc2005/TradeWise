@@ -46,6 +46,13 @@ form {
     color:#00005f;
 }
 
+.form-item input[type="checkbox"] {
+    background-color: white !important;
+    accent-color: white;
+    color: #00005f;
+    height: 16px;
+}
+
 .form-button {
     width: 100%;
     padding: 5px;
@@ -128,4 +135,23 @@ form a:hover {
 .table-link, .table-link:hover {
     text-decoration: none;
     color: inherit;
+}
+
+.expert {
+   justify-items: center;
+   margin: 10px auto;
+   padding: 20px;
+   border-radius: 10px;
+   color: #00005f; 
+   background-color: #7DCEA0;
+   width: 50%;
+}
+
+.expert a {
+    text-decoration: none;
+    color: #00005f !important;
+}
+
+.expert a:hover {
+    text-decoration: underline;
 }

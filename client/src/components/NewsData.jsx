@@ -24,7 +24,7 @@ export default function NewsData({ news }) {
               <a href={item.url} target="_blank" rel="noreferrer" className="link-first">{item.title}</a>
             </h4>
             <p className="description-first">
-              {item.description}
+              {item.description.slice(0, 500)}
               <a href={item.url} target="_blank" rel="noreferrer" className="link-first"> Read more</a>
             </p>
           </div>

@@ -119,6 +119,7 @@ The client will be available at http://localhost and the server API at http://lo
     cd server
     pip install -r requirements.txt
     python manage.py makemigrations
+    python manage.py makemigrations tradewise
     python manage.py migrate
     ```
 3. **Run the Django server:**

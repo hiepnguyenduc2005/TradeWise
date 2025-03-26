@@ -10,14 +10,13 @@ function CustomNavbar({ isAuthenticated, setIsAuthenticated, dataUser, setDataUs
         AuthAPI.logoutUser()
             .then(() => {
                 setIsAuthenticated(false);
-                setDataUser({ 'username': '', 'fullname': '' });
+                setDataUser({ 'username': '', 'fullname': '', 'group': '' });
                 navigate('/login');
             })
             .catch(() => {
                 alert('Error authenticating: Logout failed');
             });
     }
-
     return (
         <Navbar bg="light" expand="lg">
             <Container className="container">
@@ -29,18 +28,37 @@ function CustomNavbar({ isAuthenticated, setIsAuthenticated, dataUser, setDataUs
                         <Nav.Link href="/quote">Quote</Nav.Link>
                         {isAuthenticated && (
                             <>
-                                <Nav.Link href="/buy">Buy</Nav.Link>
-                                <Nav.Link href="/sell">Sell</Nav.Link>
-                                <Nav.Link href="/history">History</Nav.Link>
+                                {['User', 'Premium User'].includes(dataUser.group) && (
+                                    <>
+                                        <Nav.Link href="/buy">Buy</Nav.Link>
+                                        <Nav.Link href="/sell">Sell</Nav.Link>
+                                        <Nav.Link href="/history">History</Nav.Link>
+                                    </>
+                                )}
+                                {dataUser.group === 'Expert' && (
+                                    <Nav.Link href="/">Chats</Nav.Link>
+                                )}
+                                {dataUser.group === 'Premium User' && (
+                                    <Nav.Link href="/">Expert</Nav.Link>
+                                )}
+                                {dataUser.group === 'User' && (
+                                    <Nav.Link disabled>Expert (Premium Only)</Nav.Link>
+                                )}
                             </>
                         )}
                     </Nav>
                     <Nav className="ms-auto">
                         {isAuthenticated ? (
                             <NavDropdown title={dataUser.fullname} id="basic-nav-dropdown">
+                                <NavDropdown.Item disabled>{dataUser.group}</NavDropdown.Item>
                                 <NavDropdown.Item onClick={logOut}>Log Out</NavDropdown.Item>
                                 <NavDropdown.Item href="/changepw">Change Password</NavDropdown.Item>
-                                <NavDropdown.Item href="/addcash">Add Cash</NavDropdown.Item>
+                                {['User', 'Premium User'].includes(dataUser.group) &&
+                                    <NavDropdown.Item href="/addcash">Add Cash</NavDropdown.Item>
+                                }
+                                {dataUser.group === 'User' &&
+                                    <NavDropdown.Item href="/upgrade">Upgrade Premium</NavDropdown.Item>
+                                }
                             </NavDropdown>
                         ) : (
                             <NavDropdown title="Start Here" id="basic-nav-dropdown">

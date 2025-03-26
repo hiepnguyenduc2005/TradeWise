@@ -21,13 +21,13 @@ export default function ChangePassword() {
         }
         
         AuthAPI.changePassword(currentPassword, newPassword)
-            .then(() => {
-                alert('Password changed successfully');
-                navigate('/');
-            })
-            .catch(error => {
-                alert('Error authenticating: ' + error.message);
-            });
+          .then(() => {
+              alert('Password changed successfully');
+              navigate('/');
+          })
+          .catch(error => {
+              alert('Error authenticating: ' + error.message);
+          });
     };
 
     return (
