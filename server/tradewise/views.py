@@ -9,6 +9,7 @@ from .models import Profile, Transaction
 from .templates import view_message, view_error, view_profile, view_transaction
 from .helpers import login_required, require_POST, stock_data, company_profile, news_data, historical_price, ChatSession
 from .predict import predict_stock
+from .stripe import create_stripe_checkout_session, update_user_to_premium, verify_stripe_webhook
 
 chat_sessions = {}
 
@@ -188,18 +189,32 @@ def change_password(request):
 @csrf_exempt
 def upgrade_premium(request):
     try:
-        in_user = request.user
-        user_group = Group.objects.get(name='User')
-        in_user.groups.remove(user_group)
-        premium_group = Group.objects.get(name='Premium User')
-        in_user.groups.add(premium_group)
-        user_id = in_user.id
-        if user_id in chat_sessions:
-            del chat_sessions[user_id]
-        return view_message('Upgrade to premium successful')
-    except json.JSONDecodeError:
-        return view_error('Invalid JSON')
+        user_id = request.user.id
+        session_id, error = create_stripe_checkout_session(user_id)
+        if error:
+            return view_error(f"Failed to create checkout session: {error}")
+        return JsonResponse({'sessionId': session_id})
+    except Exception as e:
+        return view_error(f"Error initiating payment: {str(e)}")
 
+# stripe webhook
+@csrf_exempt
+def stripe_webhook(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    event, error = verify_stripe_webhook(payload, sig_header)
+    if error:
+        return view_error({'error': f"Webhook verification failed: {error}"})
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        user_id = session['metadata']['user_id']   
+        message, error = update_user_to_premium(user_id)
+        if error:
+            view_error({'error': f"Failed to update user: {error}"}, status=400)
+        return view_message(f'Status: Success, Successfully upgraded to premium: {message}')
+    return view_message('Status: Ignore', 200)
 
 # add cash
 @login_required
@@ -232,7 +247,7 @@ def show_cash(request):
         return JsonResponse({'balance': profile.balance})
     except Profile.DoesNotExist:
         return view_error('Profile not found')
-    
+
 
 # quote
 @csrf_exempt

@@ -16,7 +16,6 @@ import Index from './pages/Index';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ChangePassword from './pages/ChangePassword';
-import UpgradePremium from './pages/UpgradePremium';
 import AddCash from './pages/AddCash';
 import Quote from './pages/Quote';
 import Profile from './pages/Profile';
@@ -24,6 +23,8 @@ import Buy from './pages/Buy';
 import Sell from './pages/Sell';
 import History from './pages/History';
 import NotFound from './pages/NotFound';
+import Success from './pages/Success';
+import Failure from './pages/Failure';
 
 import AuthAPI from './services/AuthAPI';
 import UsersAPI from './services/UsersAPI';
@@ -96,12 +97,20 @@ function App() {
           ),
       },
       {
-            path: '/upgrade',
-            element: (
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <UpgradePremium setDataUser={setDataUser}/>
-              </ProtectedRoute>
-            ),
+        path: '/success', 
+        element: (
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Success />
+            </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/failure',
+        element: (
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Failure />
+            </ProtectedRoute>
+        ),
       },
       {
           path: '/addcash',
