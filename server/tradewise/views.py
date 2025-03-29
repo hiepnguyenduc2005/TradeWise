@@ -119,7 +119,7 @@ def signup_user(request):
         user.groups.add(user_group)
         in_user = authenticate(request, username=username, password=password)
         login(request, in_user)
-        profile = Profile.objects.get(user=in_user, balance=float(balance))
+        profile = Profile.objects.get(user=in_user)
         profile.save()
         if is_expert:
             profile.approved_expert = False
