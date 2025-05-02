@@ -1,24 +1,10 @@
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import '../css/Navbar.css';
-import { useNavigate } from 'react-router-dom';
-import AuthAPI from '../services/AuthAPI';
 import UsersAPI from '../services/UsersAPI';
 import { loadStripe } from '@stripe/stripe-js';
 
-function CustomNavbar({ isAuthenticated, setIsAuthenticated, dataUser, setDataUser }) {
-    const navigate = useNavigate();
+function CustomNavbar({ logOut, isAuthenticated, dataUser }) {
     const stripePromise = loadStripe('pk_test_51R6eCg7bv3eYgpHrl0msZXzey0nuoKE4qMVcTvexuQcbxYbu4hE1UhC0K04HzS4ZunifmwmfiUeTrqBC4SVEYlVZ00iqLrwFm4');
-    const logOut = async () => {
-        AuthAPI.logoutUser()
-            .then(() => {
-                setIsAuthenticated(false);
-                setDataUser({ 'username': '', 'fullname': '', 'group': '' });
-                navigate('/login');
-            })
-            .catch(() => {
-                alert('Error authenticating: Logout failed');
-            });
-    }
 
     const handleUpgradePremium = async (e) => {
         e.preventDefault();

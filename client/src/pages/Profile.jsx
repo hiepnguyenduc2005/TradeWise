@@ -7,9 +7,11 @@ import Predictions from '../components/Predictions';
 import About from '../components/About';
 import NewsSentiment from '../components/NewsSentiment';
 import NewsData from '../components/NewsData';
+import Socket from '../services/Socket';
 
 export default function Profile({ dataUser }) {
     let { symbol } = useParams();
+    symbol = symbol.toUpperCase();
     const navigate = useNavigate();
     const [company, setCompany] = useState(null);
     const [price, setPrice] = useState(null);
@@ -17,6 +19,18 @@ export default function Profile({ dataUser }) {
     const [newsSentiment, setNewsSentiment] = useState(null);
 
     const isPremium = (dataUser.group === 'Premium User')
+    useEffect(() => {
+        Socket(`/stock/${dataUser.id}/${symbol}/`, setPrice);
+        // const socket = new WebSocket(`ws://localhost:8000/ws/stock/${symbol}/`);
+        // socket.onopen = () => console.log("WebSocket connected");
+        // socket.onmessage = (event) => {
+        //     const data = JSON.parse(event.data);
+        //     setPrice(data);
+        // };
+        // socket.onerror = (e) => console.error("WebSocket error:", e);
+        // socket.onclose = () => console.warn("WebSocket closed");
+    }, [dataUser, symbol]);
+
     useEffect(() => {
         const fetchData = async () => {
             if (symbol === '') {

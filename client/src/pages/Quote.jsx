@@ -11,7 +11,7 @@ export default function Quote() {
             alert('Please fill in all fields');
             return;
         }
-        navigate(`/quote/${symbol}`);
+        navigate(`/quote/${symbol.toUpperCase()}`);
     }
     return (
         <div>

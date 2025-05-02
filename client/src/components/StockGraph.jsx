@@ -4,6 +4,7 @@ import Line from './Graphs/Line';
 import Candlestick from './Graphs/Candlestick';
 import HeikinAshi from './Graphs/HeikinAshi';
 import Area from './Graphs/Area';
+import Socket from '../services/Socket';
 import '../css/Profile.css';
 
 export default function StockGraph ({ symbol, ipoDate, dataUser }) {
@@ -11,6 +12,19 @@ export default function StockGraph ({ symbol, ipoDate, dataUser }) {
   const [chartType, setChartType] = useState('candlestick'); 
   const [option, setOption] = useState('1d'); 
 
+  useEffect(() => {
+    Socket(`/historical/${dataUser.id}/${symbol}/`, setData);
+  //   const socket = new WebSocket(`ws://localhost:8000/ws/historical/${symbol}/`);
+  //   socket.onopen = () => console.log("WebSocket connected");
+  //   socket.onmessage = (event) => {
+  //       const data = JSON.parse(event.data);
+  //       setData(data);
+  //   };
+  //   socket.onerror = (e) => console.error("WebSocket error:", e);
+  //   socket.onclose = () => console.warn("WebSocket closed");
+  }
+  , [dataUser, symbol]);
+  
   useEffect(() => {
     const fetchStockData = async () => {
         ProfilesAPI.graph(symbol, option, ipoDate)

@@ -39,7 +39,7 @@ export default function Signup({ setIsAuthenticated, setDataUser }) {
             .then(() => {
                 AuthAPI.authenticate()
                     .then(data => {
-                        setDataUser({ username: data.username, fullname: data.fullname, group: data.group });
+                        setDataUser({ 'id': data.id, 'username': data.username, 'fullname': data.fullname, 'group': data.group });
                         navigate('/');
                     })
             })

@@ -4,6 +4,7 @@ import Col from 'react-bootstrap/Col';
 import '../css/main.css';
 import { Link } from 'react-router-dom';
 import UsersAPI from '../services/UsersAPI';
+import Socket from '../services/Socket';
 
 export default function Index({ isAuthenticated, dataUser, cash }) {
     const [guideNeeded, setGuideNeeded] = useState(false);
@@ -15,13 +16,25 @@ export default function Index({ isAuthenticated, dataUser, cash }) {
     };
 
     useEffect(() => {
+        Socket(`/user/${dataUser.id}/`, setTransactions);
+        // const socket = new WebSocket(`ws://localhost:8000/ws/user/${dataUser.id}/`);
+        // socket.onopen = () => console.log("WebSocket connected");
+        // socket.onmessage = (event) => {
+        //     const data = JSON.parse(event.data);
+        //     setTransactions(data);
+        // };
+        // socket.onerror = (e) => console.error("WebSocket error:", e);
+        // socket.onclose = () => console.warn("WebSocket closed");
+    }, [dataUser]);
+
+    useEffect(() => {
         if (!isAuthenticated) {
             return;
         }
         UsersAPI.profile()
             .then(data => {
                 if (Array.isArray(data)) {
-                    setTransactions(data.reverse())
+                    setTransactions(data)
                 }
             })
             .catch(error => console.error('Error fetching transactions:', error.message));

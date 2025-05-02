@@ -1,5 +1,6 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 
 import React, { useEffect, useState } from 'react';
 import { useRoutes } from 'react-router-dom';
@@ -31,18 +32,68 @@ import UsersAPI from './services/UsersAPI';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [dataUser, setDataUser] = useState({'username': '', 'fullname': '', 'group': ''});
+  const [dataUser, setDataUser] = useState({'id': '', 'username': '', 'fullname': '', 'group': ''});
   const [loading, setLoading] = useState(true); 
   const [tempTransactions, setTempTransactions] = useState([]);
   const [cash, setCash] = useState(0);
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
 
+    const navigate = useNavigate();
+    const logOut = async () => {
+        AuthAPI.logoutUser()
+            .then(() => {
+                setIsAuthenticated(false);
+                setDataUser({'id': '', 'username': '', 'fullname': '', 'group': '' });
+                navigate('/login');
+            })
+            .catch(() => {
+                alert('Error authenticating: Logout failed');
+            });
+    }
+
+    useEffect(() => {
+        const updateActivity = () => {
+            localStorage.setItem('lastActivity', Date.now().toString());
+        };
+    
+        window.addEventListener('mousemove', updateActivity);
+        window.addEventListener('keydown', updateActivity);
+    
+        return () => {
+            window.removeEventListener('mousemove', updateActivity);
+            window.removeEventListener('keydown', updateActivity);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const checkTimeout = () => {
+            const last = parseInt(localStorage.getItem('lastActivity') || '0');
+            const now = Date.now();
+            const diff = (now - last) / 1000; 
+
+            const EXPIRE_TIME = 600;
+            if (diff > 0.9 * EXPIRE_TIME && diff < EXPIRE_TIME) {
+                setShowTimeoutWarning(true);  
+            } else if (diff >= EXPIRE_TIME) {
+                logOut();
+            } else {
+                setShowTimeoutWarning(false);
+            }
+        };
+
+        const interval = setInterval(checkTimeout, 10000); 
+        return () => clearInterval(interval);
+    }, [isAuthenticated]);
+  
     useEffect(() => {
         AuthAPI.authenticate()
         .then(data => {
             setIsAuthenticated(data.isAuthenticated);
             setLoading(false); 
             if (data.isAuthenticated) {
-                setDataUser({username: data.username, fullname: data.fullname, group: data.group});
+                setDataUser({ 'id': data.id, 'username': data.username, 'fullname': data.fullname, 'group': data.group });
             }
         })
         .catch(() => {
@@ -164,11 +215,16 @@ function App() {
 
   return (
       <div>
-        <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} 
-        dataUser={dataUser} setDataUser={setDataUser}/>
+        <Navbar logOut={logOut} isAuthenticated={isAuthenticated} 
+        dataUser={dataUser} />
         <div id="floating">
           <span className="welcome">Welcome to Trade<b>Wise</b>!</span>
         </div>
+        {showTimeoutWarning && (
+            <div className="session-warning-modal">
+                <p>Your session will expire soon. Move your mouse or press a key to stay logged in.</p>
+            </div>
+        )}
         <Row className="row">
           <Col xs={12} md={9}>
             <div className="element">

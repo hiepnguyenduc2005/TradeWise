@@ -10,6 +10,9 @@ from .templates import view_message, view_error, view_profile, view_transaction
 from .helpers import login_required, require_POST, stock_data, company_profile, news_data, historical_price, ChatSession
 from .predict import predict_stock
 from .stripe import create_stripe_checkout_session, update_user_to_premium, verify_stripe_webhook
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from datetime import timedelta
+from django.utils import timezone
 
 chat_sessions = {}
 
@@ -22,50 +25,71 @@ def session(request):
     username = in_user.username
     fullname = in_user.first_name + ' ' + in_user.last_name
     group = in_user.groups.all()[0].name
+    id = in_user.id
     if not group:
         group = 'User'
     elif group == 'Expert':
         expert = Profile.objects.get(user=in_user)
         if not expert.approved_expert :
             group = 'Pending Expert' 
-    return JsonResponse({'isAuthenticated': True, 'username': username, 'fullname': fullname, 'group': group})
+    return JsonResponse({'isAuthenticated': True, 'id': id, 'username': username, 'fullname': fullname, 'group': group})
 
 
 # index 
 @csrf_exempt
 def index(request):
     in_user = request.user
-    if in_user.is_authenticated:
-        cache_key = f"user_profile_{in_user.id}"
-        cached_data = cache.get(cache_key)
-        
-        if cached_data: 
-            try:
-                cached_data = json.loads(cached_data)
-                return JsonResponse(cached_data, safe=False)
-            except json.JSONDecodeError:
-                view_error("Error decoding cached data")
-        
-        profile = Profile.objects.get(user=in_user)
-        transaction = Transaction.objects.filter(user=profile)
-        shortlist = dict()
+    if in_user.is_authenticated:  
+        if in_user.groups.filter(name='Expert').exists():
+            return view_message('Welcome to Tradewise! You are an Expert user.')
+        else:      
+            profile = Profile.objects.get(user=in_user)
+            transaction = Transaction.objects.filter(user=profile)
+            shortlist = dict()
 
-        for t in transaction:
-            if t.symbol in shortlist:
-                shortlist[t.symbol] += t.shares
+            for t in transaction:
+                if t.symbol in shortlist:
+                    shortlist[t.symbol] += t.shares
+                else:
+                    shortlist[t.symbol] = t.shares
+            schedule, _ = IntervalSchedule.objects.get_or_create(every=5, period='minutes')
+            task_name = f'update_user_profile_{in_user.id}'
+            expires_at = timezone.now() + timedelta(minutes=30)
+            if not PeriodicTask.objects.filter(name=task_name).exists():
+                print("Creating PeriodicTask for user profile update")
+                PeriodicTask.objects.create(
+                    interval=schedule,
+                    name=task_name,
+                    task='tradewise.tasks.update_user_profile',
+                    args=json.dumps([in_user.id, shortlist]),
+                    expires=expires_at,
+                    enabled=True
+                )
             else:
-                shortlist[t.symbol] = t.shares
+                task = PeriodicTask.objects.get(name=task_name)
+                task.enabled = True
+                task.expires = expires_at
+                task.save()
+            cache_key = f"user_profile_{in_user.id}"
+            cached_data = cache.get(cache_key)
+            
+            if cached_data: 
+                try:
+                    cached_data = json.loads(cached_data)
+                    return JsonResponse(cached_data, safe=False)
+                except json.JSONDecodeError:
+                    view_error("Error decoding cached data")
 
-        data = []
-        for symbol, shares in shortlist.items():
-            if shares > 0 and symbol != 'Cash':
-                price = stock_data(symbol)[1]  
-                if price is not None:
-                    data.append({'symbol': symbol, 'shares': shares, 'price': price})
-        cache.set(cache_key, json.dumps(data), timeout=300)
-        if not data:
-            return view_message('Welcome to Tradewise! You have no stocks yet.')
-        return JsonResponse(data, safe=False)
+            data = []
+            for symbol, shares in shortlist.items():
+                if shares > 0 and symbol != 'Cash':
+                    price = stock_data(symbol)['price']
+                    if price is not None:
+                        data.append({'symbol': symbol, 'shares': shares, 'price': price})
+            cache.set(cache_key, json.dumps(data), timeout=300)
+            if not data:
+                return view_message('Welcome to Tradewise! You have no stocks yet.')
+            return JsonResponse(data, safe=False)
     
     return view_message('Welcome to Tradewise!')
 
@@ -159,6 +183,18 @@ def logout_user(request):
     user_id = request.user.id 
     if user_id in chat_sessions:
         del chat_sessions[user_id]
+    task_name = f'update_user_profile_{user_id}'
+    task = PeriodicTask.objects.filter(name=task_name).first()
+    if task:
+        task.enabled = False
+        task.save()
+    
+    quote_tasks = PeriodicTask.objects.filter(name__startswith=f'update_stock_quote_{user_id}')
+    quote_tasks.delete()
+    
+    historical_tasks = PeriodicTask.objects.filter(name__startswith=f'update_stock_historical_{user_id}')
+    historical_tasks.delete()
+    
     logout(request)
     return view_message('Logout successful')
     
@@ -216,6 +252,7 @@ def stripe_webhook(request):
         return view_message(f'Status: Success, Successfully upgraded to premium: {message}')
     return view_message('Status: Ignore', 200)
 
+
 # add cash
 @login_required
 @require_POST
@@ -260,28 +297,44 @@ def quote(request):
             symbol = data.get('symbol')
         if not symbol:
             return view_error('Symbol is required')
+        in_user = request.user
+        if in_user.is_authenticated:
+            id = in_user.id
+            old_symbol = request.session.get("last_quoted_symbol")
+            if old_symbol and old_symbol != symbol:
+                old_task_name = f"update_stock_quote_{id}_{old_symbol}"
+                task = PeriodicTask.objects.filter(name=old_task_name).first()
+                if task:
+                    task.enabled = False
+                    task.save()
+            request.session["last_quoted_symbol"] = symbol
+            schedule, _ = IntervalSchedule.objects.get_or_create(every=5, period='minutes')
+            task_name = f'update_stock_quote_{id}_{symbol}'
+            expires_at = timezone.now() + timedelta(minutes=30)
+            if not PeriodicTask.objects.filter(name=task_name).exists():
+                PeriodicTask.objects.create(
+                    interval=schedule,
+                    name=task_name,
+                    task='tradewise.tasks.update_stock_quote',
+                    args=json.dumps([id, symbol]),
+                    expires=expires_at,
+                    enabled=True
+                )
+            else:
+                task = PeriodicTask.objects.get(name=task_name)
+                task.enabled = True
+                task.expires = expires_at
+                task.save()
         cache_key = f"stock_quote_{symbol}"
         cached_data = cache.get(cache_key)
         if cached_data:
             return JsonResponse(cached_data)
         data_stock = stock_data(symbol, checking_profile=True)
-        if isinstance(data_stock[1], int):
-            return view_error(data_stock[0], data_stock[1])
-        stock_symbol = data_stock[0]
-        stock_price = data_stock[1]
-        stock_change = data_stock[2]
-        stock_percent_change = data_stock[3]
-        stock_market_open = data_stock[4]
-        stock_price = round(float(stock_price), 2)
-        stock_change = round(float(stock_change), 3)
-        stock_percent_change = round(float(stock_percent_change), 3)
-        stock_info = {'symbol': stock_symbol, 'price': stock_price, 'change': stock_change, 
-                             'percent_change': stock_percent_change, 'is_market_open': stock_market_open}
-        if stock_market_open:
-            cache.set(cache_key, stock_info, timeout=300)
-        else:
-            cache.set(cache_key, stock_info, timeout=3600)
-        return JsonResponse(stock_info)
+        if 'error' in data_stock:
+            return view_error(data_stock['error'], data_stock['status'])
+        stock_market_open = data_stock['is_market_open']
+        cache.set(cache_key, data_stock, timeout=300 if stock_market_open else 3600)
+        return JsonResponse(data_stock)
     except json.JSONDecodeError:
         return view_error('Invalid JSON')
 
@@ -352,6 +405,42 @@ def stock_graph(request):
             ipo_date = data.get('ipoDate', '2000-01-01')
         if not symbol:
             return view_error('Symbol is required')
+        in_user = request.user
+        if in_user.is_authenticated:
+            id = in_user.id
+            if option == '1d':
+                old_symbol = request.session.get("last_historical_symbol")
+                if old_symbol and old_symbol != symbol:
+                    old_task_name = f"update_stock_historical_{id}_{old_symbol}"
+                    task = PeriodicTask.objects.filter(name=old_task_name).first()
+                    if task:
+                        task.enabled = False
+                        task.save()
+                request.session["last_historical_symbol"] = symbol
+                schedule, _ = IntervalSchedule.objects.get_or_create(every=15, period='minutes')
+                task_name = f'update_stock_historical_{id}_{symbol}'
+                expires_at = timezone.now() + timedelta(minutes=30)
+                if not PeriodicTask.objects.filter(name=task_name).exists():
+                    PeriodicTask.objects.create(
+                        interval=schedule,
+                        name=task_name,
+                        task='tradewise.tasks.update_stock_historical',
+                        args=json.dumps([id, symbol]),
+                        expires=expires_at,
+                        enabled=True
+                    )
+                else:
+                    task = PeriodicTask.objects.get(name=task_name)
+                    task.enabled = True
+                    task.expires = expires_at
+                    task.save()
+            else:
+                task_name = f'update_stock_historical_{id}_{symbol}'
+                task = PeriodicTask.objects.filter(name=task_name).first()
+                if task:
+                    task.enabled = False
+                    task.save()
+
         cache_key = f"historical_price_{symbol}_{option}"
         cached_data = cache.get(cache_key)
         if cached_data:
@@ -423,9 +512,9 @@ def buy(request):
         if not symbol or not quantity:
             return view_error('Symbol and quantity are required')
         data_stock = stock_data(symbol)
-        if isinstance(data_stock[1], int):
-            return view_error(data_stock[0], data_stock[1])
-        stock_symbol, stock_price = data_stock
+        if 'error' in data_stock:
+            return view_error(data_stock['error'], data_stock['status'])
+        stock_symbol, stock_price = data_stock['symbol'], data_stock['price']
         total_price = float(stock_price) * int(quantity)
         in_user = request.user
         profile = Profile.objects.get(user=in_user)
@@ -454,9 +543,9 @@ def sell(request):
         if not symbol or not quantity:
             return view_error('Symbol and quantity are required')
         data_stock = stock_data(symbol)
-        if isinstance(data_stock[1], int):
-            return view_error(data_stock[0], data_stock[1])
-        stock_symbol, stock_price = data_stock
+        if 'error' in data_stock:
+            return view_error(data_stock['error'], data_stock['status'])
+        stock_symbol, stock_price = data_stock['symbol'], data_stock['price']
         total_price = float(stock_price) * int(quantity)
         in_user = request.user
         profile = Profile.objects.get(user=in_user)

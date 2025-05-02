@@ -42,7 +42,13 @@ def stock_data(symbol, checking_profile=False):
             data = response.json()
             if 'code' in data:
                 continue
-            return symbol.upper(), data['close'], data['change'], data['percent_change'], data['is_market_open']
+            return {
+                'symbol': symbol.upper(),
+                'price': round(float(data['close']), 2),
+                'change': round(float(data['change']), 3),
+                'percent_change': round(float(data['percent_change']), 3),
+                'is_market_open': data['is_market_open']
+            }
     else:
         for api_key in TWELVE_DATA_API_KEYS:
             url = f'{TWELVE_DATA_API_URL}/price?symbol={symbol}&apikey={api_key}'
@@ -50,8 +56,11 @@ def stock_data(symbol, checking_profile=False):
             data = response.json()
             if 'code' in data:  
                 continue
-            return symbol.upper(), data['price']
-    return 'Failed to fetch data', 500
+            return {
+                'symbol': symbol.upper(),
+                'price': round(float(data['price']), 2),
+            }
+    return {'error': 'Failed to fetch data', 'status': 500}
 
 
 def company_profile(symbol):
@@ -64,7 +73,7 @@ def company_profile(symbol):
         if 'Error Message' in data:
             continue
         return data
-    return 'Failed to fetch data', 500
+    return {'error': 'Failed to fetch data', 'status': 500}
 
 
 def get_sentiment_label(compound):
@@ -98,7 +107,7 @@ def news_data(symbol, is_predict=False):
     #                         'description': item['description']
     #                         } for item in articles if item['title'] != '[Removed]' and item['urlToImage']]
     #     return filtered_articles
-    # return 'Failed to fetch data', 500
+    # return {'error': 'Failed to fetch data', 'status': 500}
 
     # AV_NEWS_API_URL = os.getenv('AV_NEWS_API_URL')
     # AV_NEWS_API_KEY = os.getenv('AV_NEWS_API_KEY').split(',')
@@ -138,7 +147,7 @@ def news_data(symbol, is_predict=False):
     #         }
     #         return {'articles': filtered_articles, 'sentiment_info': sentiment_info}
     #     return {'articles': filtered_articles}
-    # return 'Failed to fetch data', 500
+    # return {'error': 'Failed to fetch data', 'status': 500}
 
     analyzer = SentimentIntensityAnalyzer()
     url = f'https://api.tickertick.com/feed?q=z:{symbol}&n=200'
@@ -218,7 +227,7 @@ def historical_price(symbol, option, ipo_date):
             continue
         data_values = data.get('values', [])
         return data_values
-    return 'Failed to fetch data', 500
+    return {'error': 'Failed to fetch data', 'status': 500}
 
 
 class ChatSession:
